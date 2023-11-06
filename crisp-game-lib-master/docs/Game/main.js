@@ -38,23 +38,17 @@ let obstacles = [];
 let counter = 0;
 
 let haystack = [];
-let timer = 10;
+let timer = 60;
 
 function update() {
   if (!ticks) {
   }
 
+  
   timer--;
-
   if (timer == 0){
-    haystack.push ({
-      pos: vec(G.WIDTH/2, 0)
-    });
-    haystack.forEach((hay) => {
-      hay.pos.y += 0.1;
-      //color("yellow");
-      box(hay.pos, 2);
-    });
+    addScore(1);
+    timer = 60;
   }
 
   player = {
@@ -65,7 +59,10 @@ function update() {
   player.pos = vec(G.WIDTH * 0.5 + horizontalVelocity, (G.HEIGHT - 60) + verticalLevel);
   char("a", player.pos);
 
-  //Spawning "Haystack"s
+  if (player.pos.y > 100 ){
+    end();
+    
+  }
 
   spawn -= 1;
   if (spawn <= 0) {
@@ -86,7 +83,7 @@ function update() {
     box(fb.pos, 5);
   });
   color("black");
-
+  
 
   if (input.isPressed) {
     player.angle += player.angle == 90 ? 1 : 0;
@@ -103,5 +100,6 @@ function update() {
     // Check whether to make a small particle explosin at the position
     if (isCollidingWithObs) {
       verticalLevel += 3;
+      play("explosion");
     }
 }
