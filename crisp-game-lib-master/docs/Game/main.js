@@ -34,6 +34,8 @@ let pin;
 let player;
 let obstacles;
 let counter = 0;
+let rot = 0;
+let turnSpeed = 0.01
 
 function update() {
   if (!ticks) {
@@ -45,21 +47,22 @@ function update() {
     angle: 0,
   };
   player.pos = vec(G.WIDTH * 0.5 + horizontalVelocity, (G.HEIGHT - 60) + verticalLevel);
-  char("a", player.pos, {rotation: horizontalVelocity / 90});
+  char("a", player.pos, {rotation: rot});
   //Spawning "Haystack"
 
 
 
   if (input.isPressed) {
-    player.angle += player.angle == 90 ? 1 : 0;
+    rot += (rot != 90 ? turnSpeed : 0);
     horizontalVelocity += 1
   } else {
-    player.angle -=  player.angle == -90 ? 1: 0;
+    rot -= (rot != -90 ? turnSpeed: 0);
     horizontalVelocity -= 1
   }
   
   verticalLevel -= 0.1
 
+  /*
   obstacles = [];
   
   obstacles.forEach((fb) => {
@@ -77,5 +80,5 @@ function update() {
         if (isCollidingWithFBullets) {
             color("yellow");
             particle(e.pos);
-        }
+        }*/
 }
