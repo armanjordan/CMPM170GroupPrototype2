@@ -56,12 +56,17 @@ function update() {
     angle: 0
   };
   color("black");
-  player.pos = vec(G.WIDTH * 0.5 + horizontalVelocity, (G.HEIGHT - 60) + verticalLevel);
+  player.pos.x = clamp(player.pos.x + horizontalVelocity, 0, G.WIDTH);
+  player.pos.y = clamp(player.pos.y + verticalLevel, 0, G.HEIGHT);
   char("a", player.pos);
+
+  if(player.pos.x == 0 || player.pos.x == G.WIDTH){
+    play("hit");
+    verticalLevel += (player.pos.x === 0) ?1 :-1;
+  }
 
   if (player.pos.y > 100 ){
     end();
-    
   }
 
   spawn -= 1;
@@ -78,7 +83,7 @@ function update() {
     // Move the bullets down
     fb.pos.y += G.OBSTACLEMOVERATE;
     
-    // Drawing
+    // Drawing Haystaks
     color("yellow");
     box(fb.pos, 5);
   });
