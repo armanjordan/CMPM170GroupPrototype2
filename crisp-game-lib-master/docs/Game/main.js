@@ -117,7 +117,7 @@ function update() {
   });
   color("black");
 
-  if (keyboard.code.ShiftLeft.isPressed || keyboard.code.ShiftRight.isPressed) {
+  if (input.isPressed) {
     // player.angle += player.angle == 90 ? 1 : 0;
     horizontalVelocity += 1;
   } else {
