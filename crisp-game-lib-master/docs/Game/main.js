@@ -1,4 +1,4 @@
-title = "Crazy Truck";
+title = "Broken Pedal";
 // note changing the description changes the sfx
 description = `
   [Hold] ->
@@ -39,12 +39,13 @@ y
 y
 `,
 `
-  g
- ggg
-ggggg
-  Y
-  Y
-  Y
+
+  GG
+ GGGG
+ GGGG
+GGGGGG
+  YY
+  YY
 `,
 `
 LbbbbL
@@ -198,7 +199,7 @@ function update() {
   // Pos is (50, 75), add verticalLevel and horizontalVelocity to get current position (they are NOT change in position )
 
   player.pos.x = clamp(player.pos.x + horizontalVelocity, 0, G.WIDTH);
-  player.pos.y = clamp(player.pos.y + verticalLevel, 5, G.HEIGHT);
+  player.pos.y = clamp(player.pos.y + verticalLevel, G.STOP_HEIGHT, G.HEIGHT);
   console.log(player.pos);
   // After this point, pos reflects actual position
   color("black");
@@ -216,6 +217,7 @@ function update() {
   
   spawnBirds();
   spawnHaystacks();
+  spawnTrees();
   moveObstacles();
   spawnLines();
   moveLines();
@@ -223,8 +225,8 @@ function update() {
   // playing with obstacle spawn
 
   // stopping at a vertical height
-  verticalLevel <= G.STOP_HEIGHT ? -G.PLAYER_SPEED : G.PLAYER_SPEED;
-  handleCollsion(player.pos);
+  verticalLevel += G.STOP_HEIGHT ? -G.PLAYER_SPEED : G.PLAYER_SPEED;
+  handleCollsion();
 }
 
 function spawnBirds() {
@@ -232,8 +234,7 @@ function spawnBirds() {
   const random = Math.random();
   let spawnAreaX = random < 0.5 ? 0 : G.WIDTH;
   let movementXChange = spawnAreaX == 0 ? 2 : -2;
-  const spawnAreaY =
-    random < 0.125 ? rnd(player.pos.y - 5, player.pos.y + 5) : rnd(0, G.HEIGHT);
+  const spawnAreaY = rnd(0, G.WIDTH);
   if (spawnBirdTimer <= 0) {
     const bird = {
       pos: vec(spawnAreaX, spawnAreaY),
@@ -246,17 +247,39 @@ function spawnBirds() {
   }
 }
 
-let treeSpawnTimer = rnd (180, 600);
+let treeSpawnTimer = rnd (100, 200);
 function spawnTrees(){
   treeSpawnTimer -= 1;
   if (treeSpawnTimer <= 0){
     let random = Math.random();
-    let spawnAreaX = random < 0.5 ? 0 : G.WIDTH - 10;
+    let spawnAreaX = random < 0.5 ? 0 + 10 : G.WIDTH - 10;
     const tree = {
       pos: vec(spawnAreaX, 0),
-      
+      movementX: 0,
+      movementY: 2,
+      type: "tree"
+  }
+  obstacles.push(tree);
+  treeSpawnTimer = rnd (180, 600);
+}
+}
+
+let carSpawnTimer = rnd(180, 200);
+function spawnCars() {
+  carSpawnTimer -= 1;
+  if(carSpawnTimer <= 0) {
+    let spawnPoint = 25 + Math.floor(Math.random() * 50)
+    const car = {
+      pos: vec(spawnPoint, 0),
+      movementX: 0,
+      movementY: 1,
+      type: "car"
+    }
+    obstacles.push(car);
+    carSpawnTimer = rnd(G.CARSPAWNRATE, 600);
   }
 }
+
 function spawnHaystacks() {
   // console.log("Entering spawn Haystacks");
   spawnHayTimer -= 1;
@@ -301,7 +324,6 @@ function moveObstacles() {
   obstacles.forEach((fb) => {
     if (fb.type == "haystack") {
       if (fb.pos.y > G.HEIGHT) obstacles.splice(obstacles.indexOf(fb), 1);
-
       fb.pos.y += fb.movementY;
       color("yellow");
       char("b", fb.pos);
@@ -311,11 +333,13 @@ function moveObstacles() {
       fb.pos.x += fb.movementX;
       color("black");
       char("c", fb.pos);
+    } else if (fb.type == "tree"){
+      color("black");
+      fb.pos.y += fb.movementY;
+      char("e", fb.pos);
     }
   });
 }
-
-
 
 
 function moveLines() {
@@ -327,14 +351,14 @@ function moveLines() {
   });
 }
 
-function handleCollsion(position) {
-  console.log("Handle Collison ",position.x);
+function handleCollsion() {
   const isCollidingWithObs = char("a", player.pos).isColliding.char.b;
   const isCollidingWithBirds = char("a", player.pos).isColliding.char.c;
+  const isCollidingWithTree = char("a", player.pos).isColliding.char.e;
 
   // color("light_green");
 
-  if (isCollidingWithBirds) {
+  if (isCollidingWithBirds || isCollidingWithTree) {
     end();
     initializeGame();
     return;
@@ -345,27 +369,10 @@ function handleCollsion(position) {
     verticalLevel++;
   }
 
-  // Check is player is colliding with Grass
-  if (OnGrass) {
-    console.log("In Grass");
-    // verticalLevel += .5;
-    // color("purple");
-    // particle(player.pos, 4, G.PARTICLE_SPEED_MIN);
-  }else{
-    console.log("In Road");
-  }
-
-
   if (isCollidingWithObs) {
     // Check whether to make a small particle explosion at the position
     play("explosion");
-    verticalLevel += .5;
+    verticalLevel += 3;
   }
-  function OnGrass() {
-
-    return (
-      (0 <= position.x && position.x < 0.10 * G.WIDTH) ||
-      (0.9 * G.WIDTH < position.x && position.x <= G.WIDTH)
-    );
-  }
+  
 }
