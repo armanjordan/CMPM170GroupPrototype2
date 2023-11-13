@@ -55,6 +55,14 @@ LbbbbL
 LbbbbL
 LbbbbL
 `,
+`
+LyyyyL
+LyyyyL
+ yccy
+ yccy 
+LyyyyL
+LyyyyL
+`,
 ];
 
 /**
@@ -99,7 +107,7 @@ const G = {
   OBSTACLEMOVERATE: 0.5,
   PLAYER_SPEED: 0.1,
   PLAYER_LIVES: 3,
-  STOP_HEIGHT: 25,
+  STOP_HEIGHT: 40,
 };
 
 function createRoad() {
@@ -200,7 +208,7 @@ function update() {
 
   player.pos.x = clamp(player.pos.x + horizontalVelocity, 0, G.WIDTH);
   player.pos.y = clamp(player.pos.y + verticalLevel, G.STOP_HEIGHT, G.HEIGHT);
-  console.log(player.pos);
+  // console.log(player.pos);
   // After this point, pos reflects actual position
   color("black");
   char("a", player.pos);
@@ -218,6 +226,7 @@ function update() {
   spawnBirds();
   spawnHaystacks();
   spawnTrees();
+  spawnCars();
   moveObstacles();
   spawnLines();
   moveLines();
@@ -264,19 +273,21 @@ function spawnTrees(){
 }
 }
 
-let carSpawnTimer = rnd(180, 200);
+let carSpawnTimer = rnd(100, 130);
 function spawnCars() {
   carSpawnTimer -= 1;
   if(carSpawnTimer <= 0) {
     let spawnPoint = 25 + Math.floor(Math.random() * 50)
+    let carColor = Math.random() <= 0.5 ? "blue" : "yellow";
     const car = {
       pos: vec(spawnPoint, 0),
       movementX: 0,
       movementY: 1,
-      type: "car"
+      type: "car",
+      color: carColor
     }
     obstacles.push(car);
-    carSpawnTimer = rnd(G.CARSPAWNRATE, 600);
+    carSpawnTimer = rnd(100, 130);
   }
 }
 
@@ -337,6 +348,14 @@ function moveObstacles() {
       color("black");
       fb.pos.y += fb.movementY;
       char("e", fb.pos);
+    } else if (fb.type == "car") {
+      color("black");
+      fb.pos.y += fb.movementY;
+      if (fb.color == "blue") {
+        char("f", fb.pos);
+      } else if (fb.color == "yellow") {
+        char("g", fb.pos);
+      }
     }
   });
 }
@@ -355,10 +374,11 @@ function handleCollsion() {
   const isCollidingWithObs = char("a", player.pos).isColliding.char.b;
   const isCollidingWithBirds = char("a", player.pos).isColliding.char.c;
   const isCollidingWithTree = char("a", player.pos).isColliding.char.e;
+  const isCollidingWithCar = char("a", player.pos).isColliding.char.f;
 
   // color("light_green");
 
-  if (isCollidingWithBirds || isCollidingWithTree) {
+  if (isCollidingWithBirds || isCollidingWithTree || isCollidingWithCar) {
     end();
     initializeGame();
     return;
