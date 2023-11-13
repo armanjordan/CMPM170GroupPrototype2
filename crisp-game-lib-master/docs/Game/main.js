@@ -256,20 +256,20 @@ function spawnBirds() {
   }
 }
 
-let treeSpawnTimer = rnd (100, 200);
+let treeSpawnTimer = rnd (25, 40);
 function spawnTrees(){
   treeSpawnTimer -= 1;
   if (treeSpawnTimer <= 0){
     let random = Math.random();
     let spawnAreaX = random < 0.5 ? 0 + 10 : G.WIDTH - 10;
     const tree = {
-      pos: vec(spawnAreaX, 0),
+      pos: vec(spawnAreaX, -6),
       movementX: 0,
       movementY: 2,
       type: "tree"
   }
   obstacles.push(tree);
-  treeSpawnTimer = rnd (180, 600);
+  treeSpawnTimer = rnd (25, 40);
 }
 }
 
@@ -280,7 +280,7 @@ function spawnCars() {
     let spawnPoint = 25 + Math.floor(Math.random() * 50)
     let carColor = Math.random() <= 0.5 ? "blue" : "yellow";
     const car = {
-      pos: vec(spawnPoint, 0),
+      pos: vec(spawnPoint, -6),
       movementX: 0,
       movementY: 1,
       type: "car",
@@ -299,7 +299,7 @@ function spawnHaystacks() {
     // Spawn at random horizontal point on screen, weighted towards middle
     let randomPoint = Math.floor(Math.random() * 50) + Math.floor(Math.random() * 50);
     const haystack = {
-      pos: vec(randomPoint, 0),
+      pos: vec(randomPoint, -6),
       movementX: 0,
       movementY: G.HAYSTACKSPEED,
       type: "haystack",
