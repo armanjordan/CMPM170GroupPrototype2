@@ -363,7 +363,7 @@ function moveObstacles() {
 
 function moveLines() {
   lines.forEach((l) => {
-    if (l.pos.x > G.HEIGHT) lines.splice(lines.indexOf(l), 1);
+    if (l.pos.y > G.HEIGHT) lines.splice(lines.indexOf(l), 1);
     l.pos.y += l.movementY;
     color("yellow");
     char("d", l.pos);
