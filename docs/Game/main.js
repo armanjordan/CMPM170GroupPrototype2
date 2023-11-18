@@ -98,7 +98,7 @@ options = {
 
 const G = {
   WIDTH: 100,
-  HEIGHT: 150,
+  HEIGHT: 100,
   HAYSPAWNRATE: 50,
   BIRDSPAWNRATE: 100,
   HAYSTACKSPEED: 2,
@@ -216,7 +216,7 @@ function update() {
   horizontalVelocity += input.isPressed ? 1 : -1; // Handles Input
 
   // Handle Death
-  if (player.pos.y > 100) {
+  if (player.pos.y >= G.HEIGHT) {
     end();
     initializeGame();
     return;
@@ -243,8 +243,8 @@ function spawnBirds() {
   const random = Math.random();
   let spawnAreaX = random < 0.5 ? 0 : G.WIDTH;
   let movementXChange = spawnAreaX == 0 ? 1 : -1;
-  const spawnAreaY = rnd(0, G.WIDTH);
-  let movementYChange = (spawnAreaY <= G.WIDTH/2.0 ? 1: -1) + G.OBSTACLEMOVERATE;
+  const spawnAreaY = rnd(0, G.HEIGHT);
+  let movementYChange = (spawnAreaY <= G.HEIGHT/2.0 ? 1: -1) + G.OBSTACLEMOVERATE;
   if (spawnBirdTimer <= 0) {
     const bird = {
       pos: vec(spawnAreaX, spawnAreaY),
@@ -340,7 +340,7 @@ function moveObstacles() {
       color("yellow");
       char("b", fb.pos);
     } else if (fb.type == "bird") {
-      const isOutOfBounds = fb.pos.y < 0 || fb.pos.y > G.WIDTH || fb.pos.x < 0 || fb.pos.x > G.WIDTH;
+      const isOutOfBounds = fb.pos.x < 0 || fb.pos.x > G.WIDTH || fb.pos.y < 0 || fb.pos.y > G.HEIGHT;
       if (isOutOfBounds) obstacles.splice(obstacles.indexOf(fb), 1);
       fb.pos.x += fb.movementX;
       fb.pos.y += fb.movementY;
@@ -376,11 +376,12 @@ function handleCollsion() {
   const isCollidingWithObs = char("a", player.pos).isColliding.char.b;
   const isCollidingWithBirds = char("a", player.pos).isColliding.char.c;
   const isCollidingWithTree = char("a", player.pos).isColliding.char.e;
-  const isCollidingWithCar = char("a", player.pos).isColliding.char.f;
+  const isCollidingWithCar1 = char("a", player.pos).isColliding.char.f;
+  const isCollidingWithCar2 = char("a", player.pos).isColliding.char.g;
 
   // color("light_green");
 
-  if (isCollidingWithBirds || isCollidingWithTree || isCollidingWithCar) {
+  if (isCollidingWithBirds || isCollidingWithTree || isCollidingWithCar1 || isCollidingWithCar2) {
     end();
     initializeGame();
     return;
