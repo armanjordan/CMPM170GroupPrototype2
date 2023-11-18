@@ -100,13 +100,13 @@ const G = {
   WIDTH: 100,
   HEIGHT: 100,
   HAYSPAWNRATE: 50,
-  BIRDSPAWNRATE: 100,
+  BIRDSPAWNRATE: 200,
   HAYSTACKSPEED: 2,
   PARTICLE_SPEED_MIN: 0.5,
   PARTICLE_SPEED_MAX: 1.0,
   OBSTACLEMOVERATE: 0.5,
-  PLAYER_SPEED_ROAD: 0.1,
-  PLAYER_SPEED_GRASS: 0.1,
+  PLAYER_SPEED: 0.1,
+  PLAYER_SPEED_GRASS_COEF: -2,
   PLAYER_LIVES: 3,
   STOP_HEIGHT: 40,
   ROAD_WIDTH: 62
@@ -146,7 +146,7 @@ function UpdateBackgroundParticles() {
 }
 
 let horizontalVelocity = 0;
-let verticalLevel = 0;
+let verticalVelocity = 0;
 let spawnHayTimer = G.HAYSPAWNRATE;
 let spawnBirdTimer = G.BIRDSPAWNRATE;
 let pin;
@@ -157,18 +157,15 @@ let haystack = [];
 let lines = [];
 let timer = 60;
 
-let verticalVelocity;
-
 function initializeGame() {
   player = {
     pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
     angle: 0,
-    lives: G.PLAYER_LIVES,
+    lives: G.PLAYER_LIVES
   };
 
   // Reset other game variables
   horizontalVelocity = 0;
-  verticalLevel = 0;
   spawnHayTimer = G.HAYSPAWNRATE;
   counter = 0;
   haystack = [];
@@ -195,25 +192,25 @@ function update() {
     timer = 60;
   }
 
-  player = {
-    startPos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
-    pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
-    angle: 0,
-    lives: G.PLAYER_LIVES,
-  };
+  // player = {
+  //   startPos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
+  //   pos: vec(G.WIDTH * 0.5, G.HEIGHT * 0.5),
+  //   angle: 0,
+  //   lives: G.PLAYER_LIVES,
+  // };
 
   createRoad();
   // Player update
   // Pos is (50, 75), add verticalLevel and horizontalVelocity to get current position (they are NOT change in position )
+  horizontalVelocity = input.isPressed ? 1 : -1; // Handles Input
 
   player.pos.x = clamp(player.pos.x + horizontalVelocity, 0, G.WIDTH);
-  player.pos.y = clamp(player.pos.y + verticalLevel, G.STOP_HEIGHT, G.HEIGHT);
+  player.pos.y = clamp(player.pos.y + verticalVelocity, G.STOP_HEIGHT, G.HEIGHT);
   // console.log(player.pos);
   // After this point, pos reflects actual position
   color("black");
   char("a", player.pos);
   UpdateBackgroundParticles();
-  horizontalVelocity += input.isPressed ? 1 : -1; // Handles Input
 
   // Handle Death
   if (player.pos.y >= G.HEIGHT) {
@@ -232,19 +229,18 @@ function update() {
   moveLines();
   color("black");
   // playing with obstacle spawn
-
-  // stopping at a vertical height
-  verticalLevel += G.STOP_HEIGHT ? -G.PLAYER_SPEED_ROAD : G.PLAYER_SPEED_ROAD;
+  verticalVelocity = -G.PLAYER_SPEED * (player.pos.x < (G.WIDTH - G.ROAD_WIDTH) / 2 || player.pos.x > (G.WIDTH + G.ROAD_WIDTH) / 2 ? G.PLAYER_SPEED_GRASS_COEF : 1);
   handleCollsion();
+
 }
 
 function spawnBirds() {
   spawnBirdTimer -= 1;
   const random = Math.random();
   let spawnAreaX = random < 0.5 ? 0 : G.WIDTH;
-  let movementXChange = spawnAreaX == 0 ? 1 : -1;
+  let movementXChange = spawnAreaX == 0 ? rnd(.5, 1.5) : -rnd(.5, 1.5);
   const spawnAreaY = rnd(0, G.HEIGHT);
-  let movementYChange = (spawnAreaY <= G.HEIGHT/2.0 ? 1: -1) + G.OBSTACLEMOVERATE;
+  let movementYChange = (spawnAreaY <= G.HEIGHT/2.0 ? rnd(.5, 1.5): -rnd(.5, 1.5)) + G.OBSTACLEMOVERATE;
   if (spawnBirdTimer <= 0) {
     const bird = {
       pos: vec(spawnAreaX, spawnAreaY),
@@ -387,15 +383,15 @@ function handleCollsion() {
     return;
   }
   // Check whether colliding with barriers
-  if (player.pos.x == 0 || player.pos.x == G.WIDTH) {
-    play("hit");
-    verticalLevel++;
-  }
+  // if (player.pos.x == 0 || player.pos.x == G.WIDTH) {
+  //   play("hit");
+  //   currentPlayerSpeed = 1;
+  // }
 
   if (isCollidingWithObs) {
     // Check whether to make a small particle explosion at the position
     play("explosion");
-    verticalLevel += 3;
+    verticalVelocity = G.HAYSTACKSPEED;
   }
   
 }
