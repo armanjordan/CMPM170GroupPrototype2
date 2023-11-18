@@ -242,13 +242,14 @@ function spawnBirds() {
   spawnBirdTimer -= 1;
   const random = Math.random();
   let spawnAreaX = random < 0.5 ? 0 : G.WIDTH;
-  let movementXChange = spawnAreaX == 0 ? 2 : -2;
+  let movementXChange = spawnAreaX == 0 ? 1 : -1;
   const spawnAreaY = rnd(0, G.WIDTH);
+  let movementYChange = (spawnAreaY <= G.WIDTH/2.0 ? 1: -1) + G.OBSTACLEMOVERATE;
   if (spawnBirdTimer <= 0) {
     const bird = {
       pos: vec(spawnAreaX, spawnAreaY),
       movementX: movementXChange,
-      movementY: 0,
+      movementY: movementYChange,
       type: "bird",
     };
     obstacles.push(bird);
@@ -339,9 +340,10 @@ function moveObstacles() {
       color("yellow");
       char("b", fb.pos);
     } else if (fb.type == "bird") {
-      const isOutOfBounds = !(fb.pos.y >= 0 && fb.pos.y < G.WIDTH + 1);
+      const isOutOfBounds = fb.pos.y < 0 || fb.pos.y > G.WIDTH || fb.pos.x < 0 || fb.pos.x > G.WIDTH;
       if (isOutOfBounds) obstacles.splice(obstacles.indexOf(fb), 1);
       fb.pos.x += fb.movementX;
+      fb.pos.y += fb.movementY;
       color("black");
       char("c", fb.pos);
     } else if (fb.type == "tree"){
