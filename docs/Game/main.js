@@ -105,23 +105,23 @@ const G = {
   PARTICLE_SPEED_MIN: 0.5,
   PARTICLE_SPEED_MAX: 1.0,
   OBSTACLEMOVERATE: 0.5,
-  PLAYER_SPEED: 0.1,
+  PLAYER_SPEED_ROAD: 0.1,
+  PLAYER_SPEED_GRASS: 0.1,
   PLAYER_LIVES: 3,
   STOP_HEIGHT: 40,
+  ROAD_WIDTH: 62
 };
 
 function createRoad() {
   color("green");
-  box(G.WIDTH / 4, G.HEIGHT / 2, G.WIDTH / 2, G.HEIGHT);
-  color("green");
-  box(G.WIDTH, G.HEIGHT / 2, G.WIDTH / 2, G.HEIGHT);
+  box(G.WIDTH / 2, G.HEIGHT / 2, G.WIDTH, G.HEIGHT);
   color("white");
-  box(G.WIDTH / 2, G.HEIGHT / 2, G.WIDTH / 2 + 12, G.HEIGHT);
+  box(G.WIDTH / 2, G.HEIGHT / 2, G.ROAD_WIDTH, G.HEIGHT);
 }
 
-function SetParticleProperties() {
+function CreateBackgroundParticles() {
   backgroundParticles = times(7, () => {
-    const posX = rnd(0, G.WIDTH);
+    const posX = (G.WIDTH + rndi(-G.ROAD_WIDTH, G.ROAD_WIDTH)) / 2;
     const posY = rnd(0, G.HEIGHT);
     return {
       pos: vec(posX, posY),
@@ -130,17 +130,17 @@ function SetParticleProperties() {
   });
 }
 
-function CreateBackgroundParticles() {
+function UpdateBackgroundParticles() {
   backgroundParticles.forEach((s) => {
     const oldPosY = s.pos.y;
     s.pos.y += s.speed;
     // console.log(s.pos.y);
     s.pos.wrap(0, G.WIDTH, 0, G.HEIGHT);
     if (s.pos.y < oldPosY) {
-      s.pos.y = 0;
-      s.pos.x = rnd(0, G.WIDTH);
+      s.pos.y = rndi(0, -10);
+      s.pos.x = (G.WIDTH + rndi(-G.ROAD_WIDTH, G.ROAD_WIDTH)) / 2;
     }
-    //color("brown");
+    color("light_black");
     box(s.pos, 1);
   });
 }
@@ -186,7 +186,7 @@ function update() {
     if (input.isJustPressed) {
       initializeGame();
     }
-    SetParticleProperties();
+    CreateBackgroundParticles();
   }
 
   timer--;
@@ -212,7 +212,7 @@ function update() {
   // After this point, pos reflects actual position
   color("black");
   char("a", player.pos);
-  CreateBackgroundParticles();
+  UpdateBackgroundParticles();
   horizontalVelocity += input.isPressed ? 1 : -1; // Handles Input
 
   // Handle Death
@@ -234,7 +234,7 @@ function update() {
   // playing with obstacle spawn
 
   // stopping at a vertical height
-  verticalLevel += G.STOP_HEIGHT ? -G.PLAYER_SPEED : G.PLAYER_SPEED;
+  verticalLevel += G.STOP_HEIGHT ? -G.PLAYER_SPEED_ROAD : G.PLAYER_SPEED_ROAD;
   handleCollsion();
 }
 
